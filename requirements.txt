@@ -1,4 +1,4 @@
 pytest
 pyschieber>=1.2.9
-h5py>=2.7.1
-Keras>=2.1.4
+h5py==2.7.1
+Keras==2.1.4
