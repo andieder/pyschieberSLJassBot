@@ -10,9 +10,8 @@ from pyschieber.trumpf import Trumpf
 from pyschieber.card import from_string_to_card
 from pyschieber.rules.stich_rules import allowed_cards
 from pyschieber.player.greedy_player.trumpf_decision import choose_trumpf
-from sljassbot.player.input_handler import InputHandler, card_to_index, index_to_card, print_state, \
-    count_played_cards
-from sljassbot.player.model import build_model
+from sljassbot.player.rl_player.input_handler import InputHandler, card_to_index, index_to_card
+from sljassbot.player.rl_player.model import build_model
 
 logger = logging.getLogger(__name__)
 

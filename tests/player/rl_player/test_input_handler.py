@@ -2,7 +2,7 @@ import pytest
 from pyschieber.card import Card
 from pyschieber.suit import Suit
 
-from sljassbot.player.input_handler import card_to_index, index_to_card
+from sljassbot.player.rl_player.input_handler import card_to_index, index_to_card
 
 
 @pytest.mark.parametrize("card, index", [

@@ -4,7 +4,7 @@ import os
 from pyschieber.player.greedy_player.greedy_player import GreedyPlayer
 from pyschieber.tournament import Tournament
 from pyschieber.player.challenge_player.challenge_player import ChallengePlayer
-from sljassbot.player.rl_player import RLPlayer
+from sljassbot.player.rl_player.rl_player import RLPlayer
 
 
 def run(log_dir, episodes, rounds):

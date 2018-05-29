@@ -1,15 +1,15 @@
 import os
 import os.path
 
-from keras.layers import Dense, Conv2D, Flatten, Dropout, Conv1D, Activation, Reshape
-from keras.optimizers import Adam, SGD, RMSprop, Nadam
+from keras.layers import Dense, Flatten, Conv1D, Reshape
+from keras.optimizers import Nadam
 from keras.models import Sequential
 from keras.models import load_model
-from keras.regularizers import l1, l2
+from keras.regularizers import l2
 from keras import backend as K
 from keras.losses import mean_squared_error
 
-from sljassbot.player.input_handler import InputHandler
+from sljassbot.player.rl_player.input_handler import InputHandler
 
 
 def huber_loss(a, b, in_keras=True):
