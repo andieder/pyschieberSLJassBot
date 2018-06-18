@@ -1,3 +1,5 @@
+matplotlib
+numpy
 pytest
 pyschieber>=1.2.9
 h5py==2.7.1
