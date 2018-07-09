@@ -51,15 +51,11 @@ class InputHandler:
         self.state[self.pos_player_played_card[0]:self.pos_player_played_card[len(self.pos_player_played_card)-1] + self.nr_cards] = 0.
         player_id = 0
         for id, card in table:
-            # print('TABLE: {}'.format(table))
             if id != current_player_id:
-                # print('CURRENT PLAYER ID: {}'.format(current_player_id))
-                # print('PLAYER ID COUNTER: {}'.format(player_id))
                 self.state[self.pos_player_played_card[player_id] + card_to_index(card)] = 1.
                 player_id += 1
 
     def set_table(self, table):
-        # self.state[self.pos_table:self.pos_table + self.nr_cards] = 0.
         for _, card in table:
             self.state[self.pos_card_counter + card_to_index(card)] = 1.
 
