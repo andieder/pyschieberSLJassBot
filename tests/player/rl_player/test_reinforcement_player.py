@@ -10,12 +10,19 @@ from pyschieber.player.random_player import RandomPlayer
 from pyschieber.tournament import Tournament
 
 from sljassbot.player.rl_player.rl_player import RLPlayer
+from sljassbot.player.sl_player.sl_player import SLPlayer
 
 
 @pytest.fixture(scope='module')
 def weights_directory():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     return dir_path + '/weights/'
+
+
+@pytest.fixture(scope='module')
+def models_directory():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return dir_path + '/models/'
 
 
 @pytest.mark.statistical  #
@@ -56,6 +63,33 @@ def test_rl_vs_greedy(weights_directory):
     model_path = weights_directory + 'rl1_model.h5'
     players = [RLPlayer(name='RLPlayer1', model_path=model_path), GreedyPlayer(name='Greedy1'),
                RLPlayer(name='RLPlayer2', model_path=model_path), GreedyPlayer(name='Greedy2')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_vs_random(models_directory):
+    model_path = models_directory + 'sl1_model.h5'
+    players = [SLPlayer(name='SLPlayer1', model_path=model_path), RandomPlayer(name='Track'),
+               SLPlayer(name='SLPlayer2', model_path=model_path), RandomPlayer(name='Trick')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_vs_greedy(models_directory):
+    model_path = models_directory + 'sl1_model.h5'
+    players = [SLPlayer(name='SLPlayer1', model_path=model_path), GreedyPlayer(name='Greedy1'),
+               SLPlayer(name='SLPlayer2', model_path=model_path), GreedyPlayer(name='Greedy2')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_vs_challenge(models_directory):
+    model_path = models_directory + 'sl1_model.h5'
+    players = [SLPlayer(name='SLPlayer1', model_path=model_path), ChallengePlayer(name='ChallengePlayer1'),
+               SLPlayer(name='SLPlayer2', model_path=model_path), ChallengePlayer(name='ChallengePlayer2')]
     get_function_name()
     run_game(players)
 
@@ -101,6 +135,18 @@ def test_greedy_and_challenge_vs_2_challenge():
 def test_random_and_challenge_vs_2_challenge():
     players = [RandomPlayer(name='Random1'), ChallengePlayer(name='ChallengePlayer1'),
                ChallengePlayer(name='ChallengePlayer2'), ChallengePlayer(name='ChallengePlayer3')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_vs_rl(models_directory, weights_directory):
+    sl_model_path = models_directory + 'sl1_model.h5'
+    rl_model_path = weights_directory + 'rl1_model.h5'
+    players = [SLPlayer(name='SLPlayer1', model_path=sl_model_path),
+               RLPlayer(name='RLPlayer1', model_path=rl_model_path),
+               SLPlayer(name='SLPlayer2', model_path=sl_model_path),
+               RLPlayer(name='RLPlayer2', model_path=rl_model_path)]
     get_function_name()
     run_game(players)
 
