@@ -36,6 +36,18 @@ def test_sl_vs_random(sl_models_directory):
 
 
 @pytest.mark.statistical
+def test_sl_vs_random_with_trumpfnetwork(sl_models_directory):
+    model_path = sl_models_directory + '/sl_game_model.h5'
+    trumpf_model_path = sl_models_directory + '/sl_trumpf_model.h5'
+    players = [SLPlayer(name='SLPlayer1', game_model_path=model_path, trumpf_model_path=trumpf_model_path),
+               RandomPlayer(name='Track'),
+               SLPlayer(name='SLPlayer2', game_model_path=model_path, trumpf_model_path=trumpf_model_path),
+               RandomPlayer(name='Trick')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
 def test_sl_vs_greedy(sl_models_directory):
     model_path = sl_models_directory + 'sl1_model.h5'
     players = [SLPlayer(name='SLPlayer1', game_model_path=model_path), GreedyPlayer(name='Greedy1'),

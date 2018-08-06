@@ -9,9 +9,9 @@ from sljassbot.player.sl_player.sl_player import SLPlayer
 
 def run(log_dir, episodes, rounds):
     save_model_path = log_dir + '/sl1_model.h5'
-    trumpf_model_path = '/trumpf_network_model_final__2018-06-18_112248.h5'
-    game_model_path = '/game_network_model_18__2017-11-16_161619.h5'
-    sl_player = SLPlayer(name='SL1', game_model_path=game_model_path, rounds=rounds)
+    trumpf_model_path = log_dir + '/trumpf_network_model_final__2018-06-18_112248.h5'
+    game_model_path = log_dir + '/game_network_model_282__2018-06-17_202136.h5'
+    sl_player = SLPlayer(name='SL1', game_model_path=game_model_path, trumpf_model_path=trumpf_model_path, rounds=rounds)
     # players = [sl_player, ChallengePlayer(name='Tick'), ChallengePlayer(name='Trick'), ChallengePlayer(name='Track')]
     players = [sl_player, GreedyPlayer(name='Tick'), GreedyPlayer(name='Trick'), GreedyPlayer(name='Track')]
     sum_won = 0
@@ -22,7 +22,7 @@ def run(log_dir, episodes, rounds):
         sum_won += sl_player.won[0]
         print_stats_winning(sl_player.won_stich, sl_player.won, e, sum_won)
         sl_player.reset_stats()
-    sl_player.game_model.save(save_model_path)
+    # sl_player.game_model.save(save_model_path)
 
 
 def print_stats_winning(won_stich, won, epoch, sum_won):
@@ -46,6 +46,6 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--log_dir', dest='log_dir', help='Tensorboard log directory')
     parser.add_argument('-e', '--nr_episodes', dest='nr_episodes', help='Number of episodes to play', type=int)
     parser.add_argument('-r', '--rounds', dest='rounds', help='Game rounds', type=int)
-    parser.set_defaults(log_dir=dir_path + '/rl_models', nr_episodes=10, rounds=20)
+    parser.set_defaults(log_dir=dir_path + '/models', nr_episodes=10, rounds=20)
     args = parser.parse_args()
     run(log_dir=args.log_dir, episodes=args.nr_episodes, rounds=args.rounds)

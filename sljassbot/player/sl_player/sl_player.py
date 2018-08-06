@@ -1,5 +1,6 @@
 import logging
 import random
+import operator
 from collections import deque
 
 import numpy as np
@@ -18,12 +19,14 @@ class SLPlayer(BasePlayer):
     max_points = 55
     min_points = -55
 
-    def __init__(self, name, game_model_path, rounds=1):
+    def __init__(self, name, game_model_path, trumpf_model_path=None, rounds=1):
         super().__init__(name=name)
-        self.input_handler = InputHandler()
+        self.input_handler_game_network = InputHandler()
+        self.input_handler_trumpf_network = 36 + 1
         self.n_samples = 20 * rounds
         self.memories = deque([], maxlen=2 * self.n_samples)
         self.game_model = build_model(model_path=game_model_path)
+        self.trumpf_model = build_model(model_path=trumpf_model_path)
         self.epsilon = 0.95  # exploration rate
         self.won = 0
         self.current_memory = dict(used=False)
@@ -45,17 +48,83 @@ class SLPlayer(BasePlayer):
         return act_values, np.argsort(act_values[0])[::-1]
 
     def choose_trumpf(self, geschoben):
-        allowed = False
-        while not allowed:
-            trumpf, _ = choose_trumpf(cards=self.cards, geschoben=geschoben)
-            allowed = yield trumpf
-            if allowed:
-                yield None
+        if self.trumpf_model is None:
+            allowed = False
+            while not allowed:
+                trumpf, _ = choose_trumpf(cards=self.cards, geschoben=geschoben)
+                allowed = yield trumpf
+                if allowed:
+                    yield None
+        else:
+            trumpf_list = self.choose_game_mode(hand_cards=self.cards, geschoben=geschoben)
+            for trumpf in trumpf_list:
+                yield trumpf
+
+    def choose_game_mode(self, hand_cards, geschoben):
+        prediction_input = self.preparation_prediction(hand_cards, geschoben)
+        trumpf_calc_list = self.trumpf_model.predict(np.asarray(prediction_input))
+        trumpf_choice_list = self.calc_mapping_trumpf(trumpf_calc_list)
+        trumpf_choose_list = sorted(trumpf_choice_list.items(), key=operator.itemgetter(1), reverse=True)
+
+        trumpf_list = []
+        for tumpf_value in trumpf_choose_list:
+            trumpf_list.append(tumpf_value[0])
+
+        if trumpf_list[0].name == 'SCHIEBEN' and geschoben == True:
+            del trumpf_list[0]
+
+        return trumpf_list
+
+    def preparation_prediction(self, hand_cards, geschoben):
+        shift = False
+        # In the case that geschoben isn't a boolean, so you can change any value to a true otherwise is it false
+        # if not geschoben is None:
+        #     shift = True
+        if isinstance(geschoben, bool) and geschoben:
+            shift = True
+
+        handcards = self.fillup_card_list(hand_cards)
+
+        return self.create_trumpf_choose_input(handcards, shift)
+
+    def calc_mapping_trumpf(self, calc_list):
+        # The original outputs order of all game mods from training is
+        # {'ROSE': '', 'ACORN': '', 'BELL': '', 'SHIELD': '', 'OBE_ABE': '', 'UNDE_UFE': '', 'SCHIEBEN': ''}
+        # but you can change the groupings of inputs order if you change also the outputs order of the color.
+        # The order of inputs and outputs is interdependent,
+        # but the name doesn't matter as long as the groupings remain.
+        # choice_list is the output order of all game modes (suits/color and other options)
+        order_list = [Trumpf.ROSE, Trumpf.BELL, Trumpf.ACORN, Trumpf.SHIELD, Trumpf.OBE_ABE, Trumpf.UNDE_UFE, Trumpf.SCHIEBEN]
+        choice_list = dict(zip(order_list, calc_list[0]))
+        return choice_list
+
+    def fillup_card_list(self, cards):
+        if not isinstance(cards, list):
+            return None
+        card_list = []
+        if len(cards) > 0:
+            for card in cards:
+                card_list.append(card)
+        return card_list
+
+    def create_trumpf_choose_input(self, handcards, game_type):
+        if len(handcards) != 9:
+            return None
+        inputs = np.zeros((self.input_handler_trumpf_network,))
+        for card in handcards:
+            if inputs[card_to_index(card)] == 1:
+                return None
+            inputs[card_to_index(card)] = 1
+        if game_type:
+            inputs[self.input_handler_trumpf_network - 1] = 1
+        else:
+            inputs[self.input_handler_trumpf_network - 1] = 0
+        return np.reshape(inputs, (1, self.input_handler_trumpf_network))
 
     def choose_card(self, state=None):
         allowed = False
-        self.input_handler.update_state_choose_card(game_state=state, cards=self.cards, player_id=self.id)
-        predictions, prediction_indexes = self.act(self.input_handler.state)
+        self.input_handler_game_network.update_state_choose_card(game_state=state, cards=self.cards, player_id=self.id)
+        predictions, prediction_indexes = self.act(self.input_handler_game_network.state)
         card = self.max_of_allowed_cards(state=state, predictions=predictions)
         self.current_memory['action'] = prediction_indexes[0]
         self.current_memory['hand_cards'] = self.cards[:]
@@ -83,18 +152,18 @@ class SLPlayer(BasePlayer):
                           hand_cards=self.previous_memory['hand_cards'],
                           table_cards=self.previous_memory['table_cards'], trumpf=self.previous_memory['trumpf'],
                           next_state=None)
-            self.input_handler.reset()
+            self.input_handler_game_network.reset()
 
     def stich_over(self, state=None):
         done = True if len(self.cards) == 0 else False
         last_stich = state['stiche'][-1] if state['stiche'] else None
-        self.current_memory['state'] = np.copy(self.input_handler.state)
+        self.current_memory['state'] = np.copy(self.input_handler_game_network.state)
         self.current_memory['reward'] = self.calculate_reward(state['teams'], done=done,
                                                               stich=last_stich) if last_stich else 0
         self.current_memory['done'] = done
         self.current_memory['used'] = True
         self.save_state(done=done)
-        self.input_handler.update_state_stich(game_state=state, cards=self.cards, player_id=self.id)
+        self.input_handler_game_network.update_state_stich(game_state=state, cards=self.cards, player_id=self.id)
 
     def calculate_reward(self, teams, done, stich):
         stich_player_id = stich['player_id']
