@@ -4,14 +4,14 @@ import os
 from pyschieber.player.greedy_player.greedy_player import GreedyPlayer
 from pyschieber.tournament import Tournament
 from pyschieber.player.challenge_player.challenge_player import ChallengePlayer
-from sljassbot.player.sl_player.sl_player import SLPlayer
+from sljassbot.player.sl_player.three_LP_with_two_two_two.sl_player import SLPlayer3LP222
 
 
 def run(log_dir, episodes, rounds):
     save_model_path = log_dir + '/sl1_model.h5'
     trumpf_model_path = log_dir + '/trumpf_network_model_final__2018-06-18_112248.h5'
-    game_model_path = log_dir + '/game_network_model_282__2018-06-17_202136.h5'
-    sl_player = SLPlayer(name='SL1', game_model_path=game_model_path, trumpf_model_path=trumpf_model_path, rounds=rounds)
+    game_model_path = log_dir + '/Supervised_Gamenetwork__network_model_282__2018-09-02_122529.h5'
+    sl_player = SLPlayer3LP222(name='SL1', game_model_path=game_model_path, trumpf_model_path=trumpf_model_path, rounds=rounds)
     # players = [sl_player, ChallengePlayer(name='Tick'), ChallengePlayer(name='Trick'), ChallengePlayer(name='Track')]
     players = [sl_player, GreedyPlayer(name='Tick'), GreedyPlayer(name='Trick'), GreedyPlayer(name='Track')]
     sum_won = 0

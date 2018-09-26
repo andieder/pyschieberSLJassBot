@@ -9,13 +9,13 @@ from pyschieber.player.base_player import BasePlayer
 from pyschieber.trumpf import Trumpf
 from pyschieber.card import from_string_to_card
 from pyschieber.player.greedy_player.trumpf_decision import choose_trumpf
-from sljassbot.player.sl_player.input_handler import InputHandler, card_to_index, index_to_card
-from sljassbot.player.sl_player.model import build_model
+from sljassbot.player.sl_player.three_LP_with_two_two_two.input_handler import InputHandler, card_to_index, index_to_card
+from sljassbot.player.sl_player.three_LP_with_two_two_two.model import build_model
 
 logger = logging.getLogger(__name__)
 
 
-class SLPlayer(BasePlayer):
+class SLPlayer3LP222(BasePlayer):
     max_points = 55
     min_points = -55
 
@@ -43,9 +43,23 @@ class SLPlayer(BasePlayer):
             random_list = [i for i in range(InputHandler.output_size)]
             random.shuffle(random_list)
             return np.random.random_sample(InputHandler.output_size), np.array(random_list)
-        state = np.expand_dims(input_state, axis=0)
-        act_values = self.game_model.predict(state)
+        first_state = np.expand_dims(input_state[0:self.input_handler_game_network.network_size], axis=0)
+        second_state = np.expand_dims(input_state[self.input_handler_game_network.network_size:2 * self.input_handler_game_network.network_size], axis=0)
+        third_state = np.expand_dims(input_state[(2 * self.input_handler_game_network.network_size):self.input_handler_game_network.input_size], axis=0)
+        network_prediction = self.game_model.predict({'input_1': first_state,
+                                                      'input_2': second_state,
+                                                      'input_3': third_state})
+        act_values = self.choose_output_network(prediction=network_prediction, cards=self.cards)
         return act_values, np.argsort(act_values[0])[::-1]
+
+    def choose_output_network(self, prediction, cards):
+        amount_hand_cards = len(cards)
+        if 10 > amount_hand_cards > 6:
+            return prediction[0]
+        elif 0 < amount_hand_cards < 4:
+            return prediction[2]
+        elif 3 < amount_hand_cards < 7:
+            return prediction[1]
 
     def choose_trumpf(self, geschoben):
         if self.trumpf_model is None:
@@ -70,7 +84,9 @@ class SLPlayer(BasePlayer):
         for tumpf_value in trumpf_choose_list:
             trumpf_list.append(tumpf_value[0])
 
-        if trumpf_list[0].name == 'SCHIEBEN' and geschoben == True:
+        # Normaly is the desicion == 'SCHIEBEN' and geschoben == False move the trumpf desicion to the game mate
+        # If desicion == 'SCHIEBEN' and geschoben == True remove the first posistion of the list
+        if trumpf_list[0].name == 'SCHIEBEN':
             del trumpf_list[0]
 
         return trumpf_list
