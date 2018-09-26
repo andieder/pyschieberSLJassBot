@@ -70,7 +70,9 @@ class SLPlayer186(BasePlayer):
         for tumpf_value in trumpf_choose_list:
             trumpf_list.append(tumpf_value[0])
 
-        if trumpf_list[0].name == 'SCHIEBEN' and geschoben == True:
+        # Normaly is the desicion == 'SCHIEBEN' and geschoben == False move the trumpf desicion to the game mate
+        # If desicion == 'SCHIEBEN' and geschoben == True remove the first posistion of the list
+        if trumpf_list[0].name == 'SCHIEBEN':
             del trumpf_list[0]
 
         return trumpf_list

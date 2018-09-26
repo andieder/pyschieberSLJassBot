@@ -20,13 +20,14 @@ class InputHandler:
 
     nr_cards = 36
     nr_player = 4
+    nr_trumpf_modes = 6
 
     pos_player_played_card = [1 * nr_cards, 2 * nr_cards, 3 * nr_cards]
     pos_trumpf = 5 * nr_cards
     pos_hand_cards = 0
     pos_card_counter = 4 * nr_cards
 
-    input_size = 5 * nr_cards + 6
+    input_size = 5 * nr_cards + nr_trumpf_modes
     output_size = nr_cards
 
     def __init__(self):
