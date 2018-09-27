@@ -13,6 +13,8 @@ from pyschieber.tournament import Tournament
 
 from sljassbot.player.sl_player.one_eight_six.sl_player import SLPlayer186
 from sljassbot.player.sl_player.two_two_two.sl_player import SLPlayer222
+from sljassbot.player.sl_player.three_LP_with_two_two_two.sl_player import SLPlayer3LP222
+# from sljassbot.player.sl_player.one_three_three_eight.sl_player import SLPlayer1338
 
 
 @pytest.fixture(scope='module')
@@ -32,6 +34,24 @@ def test_sl186_vs_random(sl_models_directory):
     model_path = sl_models_directory + 'sl186_game_model.h5'
     players = [SLPlayer186(name='SLPlayer1', game_model_path=model_path), RandomPlayer(name='Track'),
                SLPlayer186(name='SLPlayer2', game_model_path=model_path), RandomPlayer(name='Trick')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl222_vs_random(sl_models_directory):
+    model_path = sl_models_directory + 'sl222_game_model.h5'
+    players = [SLPlayer222(name='SLPlayer1', game_model_path=model_path), RandomPlayer(name='Track'),
+               SLPlayer222(name='SLPlayer2', game_model_path=model_path), RandomPlayer(name='Trick')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_3lp_222_vs_random(sl_models_directory):
+    model_path = sl_models_directory + 'sl3LP222_game_model.h5'
+    players = [SLPlayer3LP222(name='SLPlayer1', game_model_path=model_path), RandomPlayer(name='Track'),
+               SLPlayer3LP222(name='SLPlayer2', game_model_path=model_path), RandomPlayer(name='Trick')]
     get_function_name()
     run_game(players)
 
@@ -61,6 +81,18 @@ def test_sl222_vs_random_with_trumpfnetwork(sl_models_directory):
 
 
 @pytest.mark.statistical
+def test_sl_3lp_222_vs_random_with_trumpfnetwork(sl_models_directory):
+    model_path = sl_models_directory + '/sl3LP222_game_model.h5'
+    trumpf_model_path = sl_models_directory + '/sl37_trumpf_model.h5'
+    players = [SLPlayer3LP222(name='SLPlayer1', game_model_path=model_path, trumpf_model_path=trumpf_model_path),
+               RandomPlayer(name='Track'),
+               SLPlayer3LP222(name='SLPlayer2', game_model_path=model_path, trumpf_model_path=trumpf_model_path),
+               RandomPlayer(name='Trick')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
 def test_sl186_vs_greedy(sl_models_directory):
     model_path = sl_models_directory + 'sl186_game_model.h5'
     players = [SLPlayer186(name='SLPlayer1', game_model_path=model_path), GreedyPlayer(name='Greedy1'),
@@ -68,11 +100,21 @@ def test_sl186_vs_greedy(sl_models_directory):
     get_function_name()
     run_game(players)
 
+
 @pytest.mark.statistical
 def test_sl222_vs_greedy(sl_models_directory):
     model_path = sl_models_directory + 'sl222_game_model.h5'
     players = [SLPlayer222(name='SLPlayer1', game_model_path=model_path), GreedyPlayer(name='Greedy1'),
                SLPlayer222(name='SLPlayer2', game_model_path=model_path), GreedyPlayer(name='Greedy2')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_3lp_222_vs_greedy(sl_models_directory):
+    model_path = sl_models_directory + 'sl3LP222_game_model.h5'
+    players = [SLPlayer3LP222(name='SLPlayer1', game_model_path=model_path), GreedyPlayer(name='Greedy1'),
+               SLPlayer3LP222(name='SLPlayer2', game_model_path=model_path), GreedyPlayer(name='Greedy2')]
     get_function_name()
     run_game(players)
 
@@ -96,6 +138,15 @@ def test_sl222_vs_challenge(sl_models_directory):
 
 
 @pytest.mark.statistical
+def test_sl_3lp_222_vs_challenge(sl_models_directory):
+    model_path = sl_models_directory + 'sl3LP222_game_model.h5'
+    players = [SLPlayer3LP222(name='SLPlayer1', game_model_path=model_path), ChallengePlayer(name='ChallengePlayer1'),
+               SLPlayer3LP222(name='SLPlayer2', game_model_path=model_path), ChallengePlayer(name='ChallengePlayer2')]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
 def test_sl186_vs_rl(sl_models_directory, rl_models_directory):
     sl_model_path = sl_models_directory + 'sl186_game_model.h5'
     rl_model_path = rl_models_directory + 'rl1_model.h5'
@@ -106,6 +157,7 @@ def test_sl186_vs_rl(sl_models_directory, rl_models_directory):
     get_function_name()
     run_game(players)
 
+
 @pytest.mark.statistical
 def test_sl222_vs_rl(sl_models_directory, rl_models_directory):
     sl_model_path = sl_models_directory + 'sl222_game_model.h5'
@@ -114,6 +166,54 @@ def test_sl222_vs_rl(sl_models_directory, rl_models_directory):
                RLPlayer(name='RLPlayer1', model_path=rl_model_path),
                SLPlayer222(name='SLPlayer2', game_model_path=sl_model_path),
                RLPlayer(name='RLPlayer2', model_path=rl_model_path)]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl_3lp_222_vs_rl(sl_models_directory, rl_models_directory):
+    sl_model_path = sl_models_directory + 'sl3LP222_game_model.h5'
+    rl_model_path = rl_models_directory + 'rl1_model.h5'
+    players = [SLPlayer3LP222(name='SLPlayer1', game_model_path=sl_model_path),
+               RLPlayer(name='RLPlayer1', model_path=rl_model_path),
+               SLPlayer3LP222(name='SLPlayer2', game_model_path=sl_model_path),
+               RLPlayer(name='RLPlayer2', model_path=rl_model_path)]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl186_vs_sl222(sl_models_directory):
+    sl186_model_path = sl_models_directory + 'sl186_game_model.h5'
+    sl222_model_path = sl_models_directory + 'sl222_game_model.h5'
+    players = [SLPlayer186(name='SLPlayer186_1', game_model_path=sl186_model_path),
+               SLPlayer222(name='SLPlayer222_1', game_model_path=sl222_model_path),
+               SLPlayer186(name='SLPlayer186_2', game_model_path=sl186_model_path),
+               SLPlayer222(name='SLPlayer222_2', game_model_path=sl222_model_path)]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl186_vs_sl_3lp_222(sl_models_directory):
+    sl186_model_path = sl_models_directory + 'sl186_game_model.h5'
+    sl_3lp_222_model_path = sl_models_directory + 'sl3LP222_game_model.h5'
+    players = [SLPlayer186(name='SLPlayer186_1', game_model_path=sl186_model_path),
+               SLPlayer3LP222(name='SLPlayer3LP222_1', game_model_path=sl_3lp_222_model_path),
+               SLPlayer186(name='SLPlayer186_2', game_model_path=sl186_model_path),
+               SLPlayer3LP222(name='SLPlayer3LP222_2', game_model_path=sl_3lp_222_model_path)]
+    get_function_name()
+    run_game(players)
+
+
+@pytest.mark.statistical
+def test_sl222_vs_sl_3lp_222(sl_models_directory):
+    sl222_model_path = sl_models_directory + 'sl222_game_model.h5'
+    sl_3lp_222_model_path = sl_models_directory + 'sl3LP222_game_model.h5'
+    players = [SLPlayer222(name='SLPlayer222_1', game_model_path=sl222_model_path),
+               SLPlayer3LP222(name='SLPlayer3LP222_1', game_model_path=sl_3lp_222_model_path),
+               SLPlayer222(name='SLPlayer222_2', game_model_path=sl222_model_path),
+               SLPlayer3LP222(name='SLPlayer3LP222_2', game_model_path=sl_3lp_222_model_path)]
     get_function_name()
     run_game(players)
 
