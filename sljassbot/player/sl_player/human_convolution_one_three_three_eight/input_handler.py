@@ -124,4 +124,3 @@ def print_state(input_state, player_id):
     title_obj = plt.title('Player: {}'.format(player_id))
     plt.setp(title_obj, color='black')
     plt.show()
-
